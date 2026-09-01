@@ -117,6 +117,12 @@ class Dataset:
     def from_default_split(cls, path):
         return cls(path, split=cls.default_split)
 
+    # CLASS METHOD used to WRITE a class attribute. `cls.default_split = ...`
+    # is an assignment through `cls`, so -- just like `Model.framework = "jax"`
+    @classmethod
+    def set_default_split(cls, split):
+        cls.default_split = split
+
     # STATIC METHOD: logically related to Dataset, but needs no
     # access to `self` or `cls` at all -- pure utility function.
     @staticmethod
@@ -128,6 +134,11 @@ ds = Dataset.from_default_split("/data/coco")
 print(ds.describe())                       # Dataset(/data/coco, split=train)
 print(Dataset.is_valid_split("val"))       # True
 print(Dataset.is_valid_split("banana"))    # False
+
+Dataset.set_default_split("val")
+ds2 = Dataset.from_default_split("/data/coco")
+print(ds2.describe())                      # Dataset(/data/coco, split=val)
+print(Dataset.default_split)               # val  (class attribute actually changed)
 
 """
 Why `cls` instead of hardcoding the class name inside a classmethod?
