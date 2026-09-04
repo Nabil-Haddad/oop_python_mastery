@@ -1,11 +1,9 @@
 # MODULE 04 — INHERITANCE
 
 """
-Inheritance lets a class (the "child"/"subclass") reuse and extend the
-behavior of another class (the "parent"/"superclass"), instead of
-copy-pasting code. This is EXACTLY the mechanism behind
-`class MyModel(nn.Module):` in PyTorch, `class MyClassifier(BaseEstimator):`
-in scikit-learn, etc.
+Inheritance lets a class (the "child"/"subclass") reuse and extend the behavior of another class
+(the "parent"/"superclass"), instead of copy-pasting code. This is EXACTLY the mechanism behind
+`class MyModel(nn.Module):` in PyTorch, `class MyClassifier(BaseEstimator):` in scikit-learn, etc.
 """
 
 
@@ -28,24 +26,21 @@ class ReLU(Layer):    # ReLU INHERITS from Layer
 
 
 relu = ReLU("relu1")
-print(relu.name)    # inherited from Layer's __init__ -- wait, did we call it?
-print(relu.describe())   # inherited method works unchanged
-print(relu.forward(-5))  # 0 -- ReLU's own override
+print(relu.name)    
+print(relu.describe())  
+print(relu.forward(-5))
 
 """
 Wait -- `relu.name` worked even though ReLU never wrote its own
-__init__? That's because ReLU didn't define __init__ at all, so Python
-falls back to the PARENT's __init__ automatically. This is the essence
-of inheritance: anything the child doesn't define, it inherits as-is.
-
-
+__init__? That's because ReLU didn't define __init__ at all, so Python falls back to the PARENT's
+__init__ automatically.
+This is the essence of inheritance: anything the child doesn't define, it inherits as-is.
 """
 
 # 2. OVERRIDING __init__ AND super()
 """
-Usually a subclass DOES need its own __init__ (to add new attributes),
-but still wants the parent's setup logic to run too. `super()` gives
-you a handle to the parent class so you can call its methods
+Usually a subclass DOES need its own __init__ (to add new attributes), but still wants the parent's
+setup logic to run too. `super()` gives you a handle to the parent class so you can call its methods
 explicitly instead of rewriting them.
 """
 
@@ -67,13 +62,11 @@ class Conv2D(Layer):
 
 
 conv = Conv2D("conv1", in_channels=3, out_channels=64, kernel_size=3)
-print(conv.describe())
-# Layer(name=conv1), in=3, out=64, k=3
+print(conv.describe())    # Layer(name=conv1), in=3, out=64, k=3
 
 """
-Without super().__init__(name), you'd have to manually rewrite
-`self.name = name` yourself -- fine for one attribute, painful (and
-error-prone) for a parent with a complex setup routine. `super()`
+Without super().__init__(name), you'd have to manually rewrite `self.name = name` yourself, 
+fine for one attribute, painful (and error-prone) for a parent with a complex setup routine. `super()`
 keeps the parent's setup logic in exactly ONE place.
 """
 
@@ -86,22 +79,18 @@ print(isinstance(conv, Layer))   # True -- a Conv2D IS-A Layer
 print(type(conv) is Layer)       # False -- exact type is Conv2D, not Layer
 
 """
-Use isinstance() when you want to know "can I treat this object as a
-Layer?" (the common case). Use type() only when you specifically need
-the EXACT class, ignoring the whole inheritance chain -- rare, and
-usually a sign you should reconsider the design (see polymorphism,
-Module 05).
+Use isinstance() when you want to know "can I treat this object as a Layer?" (the common case).
+Use type() only when you specifically need the EXACT class, ignoring the whole inheritance chain
+rare, and usually a sign you should reconsider the design.
 """
 
 
 
 #4. MULTIPLE INHERITANCE AND MRO (Method Resolution Order)
 """
-Python allows a class to inherit from more than one parent. When
-several parents define the same method name, Python needs a
-deterministic rule for which one wins: the MRO (a specific left-to-right,
-depth-first-ish algorithm called C3 linearization). You can always
-inspect it directly.
+Python allows a class to inherit from more than one parent. When several parents define the same
+method name, Python needs a deterministic rule for which one wins: the MRO (a specific left-to-right,
+depth-first-ish algorithm called C3 linearization). You can always inspect it directly.
 """
 
 
@@ -109,10 +98,16 @@ class Loggable:
     def log(self):
         return f"[LOG] {self.__class__.__name__}"
 
+    def summary(self):
+        return "summary from Loggable"
+
 
 class Serializable:
     def to_dict(self):
         return self.__dict__
+
+    def summary(self):
+        return "summary from Serializable"
 
 
 class ExperimentRun(Loggable, Serializable):
@@ -121,17 +116,34 @@ class ExperimentRun(Loggable, Serializable):
 
 
 run = ExperimentRun("exp1")
-print(run.log())        # from Loggable
-print(run.to_dict())    # from Serializable
-print(ExperimentRun.__mro__)
-# (ExperimentRun, Loggable, Serializable, object) -> Python looks for a method on ExperimentRun first,
-# then Loggable, then Serializable, then the base `object` class, in that order.
+
+print(run.log())        # from Loggable -- no conflict, only Loggable has it
+print(run.to_dict())     # from Serializable -- no conflict, only Serializable has it
+
+print(run.summary())     # CONFLICT: both define summary(). Who wins?
+print(ExperimentRun.__mro__)    # (ExperimentRun, Loggable, Serializable, object)
+
+# Python walks this list left to right looking for summary(). # ExperimentRun doesn't define it -> check Loggable -> FOUND IT, stop.
+# Serializable's summary() is never even reached.
 
 """
-Practical guidance: reach for multiple inheritance mainly for small,
-focused "mixin" classes like Loggable/Serializable above -- each
-adding ONE independent capability, with no overlapping method names.
-Avoid deep, tangled multi-parent hierarchies; they get hard to reason
+Proof it's really about ORDER, not which class is "more important": swap the parent order and the winner flips.
+"""
+
+
+class ExperimentRunFlipped(Serializable, Loggable):  # order swapped
+    def __init__(self, name):
+        self.name = name
+
+
+run2 = ExperimentRunFlipped("exp2")
+print(run2.summary())           # now Serializable wins, since it's listed first
+print(ExperimentRunFlipped.__mro__)
+
+"""
+Practical guidance: reach for multiple inheritance mainly for small, focused "mixin" classes like
+Loggable/Serializable above -- each adding ONE independent capability, with no overlapping method 
+names. Avoid deep, tangled multi-parent hierarchies; they get hard to reason
 about fast. (Composition, Module 08, is often a cleaner alternative.)
 
 
@@ -140,9 +152,8 @@ about fast. (Composition, Module 08, is often a cleaner alternative.)
 """
 
 Before inheriting, ask: is a Conv2D truly A Layer? Yes -- use inheritance.
-Is a Trainer truly A Model? No -- a Trainer HAS-A model (composition,
-Module 08). Misusing inheritance where composition belongs is one of
-the most common real-world OOP design mistakes.
+Is a Trainer truly A Model? No -- a Trainer HAS-A model. Misusing inheritance where composition 
+belongs is one of the most common real-world OOP design mistakes.
 """
 
 if __name__ == "__main__":
