@@ -38,21 +38,18 @@ for layer in [ReLU(), Sigmoid(), Identity()]:
     print(type(layer).__name__, "->", run_layer(layer, -2))
 
 """
-This is the entire point of an nn.Module-style `.forward()` convention:
-a training loop can call `.forward(x)` (or in real PyTorch, just
-`layer(x)`, via __call__) on ANY layer object, completely uniformly,
-regardless of what that layer actually does internally. Add a new
-layer type tomorrow, and the training loop doesn't change ONE line.
+This is the entire point of an nn.Module-style `.forward()` convention: a training loop can call 
+`.forward(x)` (or in real PyTorch, just `layer(x)`, via __call__) on ANY layer object, completely uniformly,
+regardless of what that layer actually does internally. 
+Add a new layer type tomorrow, and the training loop doesn't change ONE line.
 """
 # 2. DUCK TYPING -- "IF IT WALKS LIKE A DUCK..."
 
 """
-Python takes polymorphism further than languages with strict typing.
-You DON'T need a shared base class at all. If an object simply HAS the
-right method with the right signature, Python is happy to call it.
-This is "duck typing": "If it walks like a duck and quacks like a
-duck, treat it as a duck" -- Python cares about BEHAVIOR, not
-declared type.
+Python takes polymorphism further than languages with strict typing. You DON'T need a shared base class
+at all. If an object simply HAS the right method with the right signature, Python is happy to call it.
+This is "duck typing": "If it walks like a duck and quacks like a duck, treat it as a duck", Python cares
+about BEHAVIOR, not declared type.
 """
 
 
@@ -67,9 +64,7 @@ class MyCustomModel:
 
 
 def train_any_model(model, X, y):
-    # No shared base class required whatsoever. This function only
-    # cares that `model` has a `.fit(X, y)` method -- ANY object that
-    # does will work here, completely unrelated classes included.
+    # No shared base class required whatsoever. This function only cares that `model` has a `.fit(X, y)`
     return model.fit(X, y)
 
 
@@ -96,21 +91,17 @@ def run_layer_BAD(layer, x):
 
 
 """
-This function must be EDITED every single time a new layer type is
-added -- a maintenance nightmare, and a violation of what's called the
-"Open/Closed Principle" (Module 12): code should be OPEN to extension
-(new layer types) but CLOSED to modification (you shouldn't have to
-touch run_layer_BAD's body ever again). Polymorphism is exactly how
-you satisfy that principle: each class knows how to handle itself, and
+This function must be EDITED every single time a new layer type is added -- a maintenance nightmare,
+and a violation of what's called the "Open/Closed Principle" (Module 12): code should be OPEN to extension
+(new layer types) but CLOSED to modification (you shouldn't have to touch run_layer_BAD's body ever again).
+Polymorphism is exactly how you satisfy that principle: each class knows how to handle itself, and
 calling code just trusts the shared interface.
 """
 
-# 4. OPERATOR POLYMORPHISM (a preview of Module 07)
+# 4. OPERATOR POLYMORPHISM
 """
-Even Python's own `+` operator is polymorphic: `1 + 2` and
-`"a" + "b"` and `[1] + [2]` all use the SAME `+` syntax but each type
-defines its own meaning for it (via a dunder method, `__add__` --
-covered fully in Module 07).
+Even Python's own `+` operator is polymorphic: `1 + 2` and `"a" + "b"` and `[1] + [2]` all use the SAME `+` 
+syntax but each type defines its own meaning for it (via a dunder method, `__add__`.
 """
 
 if __name__ == "__main__":
