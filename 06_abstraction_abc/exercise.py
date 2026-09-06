@@ -1,4 +1,4 @@
-# MODULE 06 — EXERCISES"""
+# MODULE 06 — EXERCISES
 
 from abc import ABC, abstractmethod
 
