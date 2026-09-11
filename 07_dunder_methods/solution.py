@@ -1,3 +1,5 @@
+# MODULE 07 — SOLUTIONS
+
 class Embedding:
     def __init__(self, values):
         self.values = values
