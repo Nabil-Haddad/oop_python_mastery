@@ -1,20 +1,19 @@
 # MODULE 07 — MAGIC / DUNDER METHODS
-"""
-"Dunder" = Double UNDERscore. These are special methods Python calls
-AUTOMATICALLY in response to built-in syntax (print(), len(), ==, +,
-for-loops, calling an object like a function, etc). You've already
-used __init__, the most famous dunder. This module covers the rest of
-the ones you'll actually use as an AI engineer.
 
+
+"""
+"Dunder" = Double UNDERscore. These are special methods Python calls AUTOMATICALLY in response to 
+built-in syntax (print(), len(), ==, +, for-loops, calling an object like a function, etc). 
+You've already used __init__, the most famous dunder. This module covers the rest of the ones you'll
+actually use as an AI engineer.
 
 """
 # 1. __repr__ and __str__ -- HOW OBJECTS ARE DISPLAYED
 
 
 """
-
-__repr__ : unambiguous, developer-facing. Goal: could you (ideally)
-           recreate the object from this string? Shown in the REPL,
+__repr__ : unambiguous, developer-facing.
+           Goal: could you (ideally) recreate the object from this string? Shown in the REPL,
            inside lists/dicts, and by print() if __str__ is absent.
 __str__  : human-readable, user-facing. What print(obj) shows if defined.
 """
@@ -37,19 +36,19 @@ print(repr(t))    # uses __repr__ -> Tensor(shape=(32, 128))
 print([t, t])     # lists always use __repr__ for their elements
 
 """
-Without ANY __repr__ defined, printing an object gives you the
-famously useless `<__main__.Tensor object at 0x7f...>`. ALWAYS define
-at least __repr__ on your classes -- it pays for itself the first time
-you debug with a print statement or in a debugger.
+Without ANY __repr__ defined, printing an object gives you the famously useless `<__main__.Tensor object
+at 0x7f...>`.
+ALWAYS define at least __repr__ on your classes, it pays for itself the first time you debug with a print
+statement or in a debugger.
 """
+
+
 # 2. __eq__ and __hash__ -- CUSTOM EQUALITY
 
 
 """
-
-By default, `==` compares OBJECT IDENTITY (same as `is`) unless you
-override it. Two Tensor objects with identical shapes are NOT equal by
-default -- often not what you want.
+By default, `==` compares OBJECT IDENTITY (same as `is`) unless you override it. 
+Two Tensor objects with identical shapes are NOT equal by default, often not what you want.
 """
 
 
@@ -70,21 +69,20 @@ p1, p2 = Point(1, 2), Point(1, 2)
 print(p1 == p2)   # True now (would be False without __eq__)
 print(p1 is p2)   # False -- still two different objects in memory
 
-"""
-Gotcha: once you define __eq__, Python sets __hash__ to None
-automatically (the object becomes UNHASHABLE -- you can't put it in a
-set or use it as a dict key), because a mutable object with custom
-equality is a footgun as a hash key. If you need both, define
-__hash__ explicitly (usually only for genuinely immutable objects).
-"""
-
-
-# 3. __len__, __getitem__, __iter__ -- CONTAINER-LIKE BEHAVIOR
-
 
 """
-These let YOUR object work with len(), indexing [], and for-loops,
-exactly like a built-in list or dict.
+Gotcha: once you define __eq__, Python sets __hash__ to None automatically (the object becomes UNHASHABLE,
+you can't put it in a set or use it as a dict key), because a mutable object with custom equality is a 
+footgun as a hash key.
+If you need both, define __hash__ explicitly (usually only for genuinely immutable objects).
+"""
+
+
+# 3. __len__, __getitem__, __iter__ , CONTAINER-LIKE BEHAVIOR
+
+
+"""
+These let YOUR object work with len(), indexing [], and for-loops, exactly like a built-in list or dict.
 """
 
 
@@ -109,11 +107,9 @@ for sample in b:        # uses __iter__
     print("sample:", sample)
 
 """
-This is EXACTLY the mechanism a PyTorch `Dataset` relies on:
-`__len__` and `__getitem__` are the two methods PyTorch's DataLoader
-calls internally to know how many samples exist and how to fetch one
-by index. Understanding dunders means `torch.utils.data.Dataset`
-stops looking like special magic and just looks like... two methods.
+This is EXACTLY the mechanism a PyTorch `Dataset` relies on: `__len__` and `__getitem__` are the two methods
+PyTorch's DataLoader calls internally to know how many samples exist and how to fetch one by index. 
+Understanding dunders means `torch.utils.data.Dataset` stops looking like special magic and just looks like... two methods.
 """
 
 # 4. __call__ -- MAKING AN OBJECT CALLABLE LIKE A FUNCTION
@@ -127,12 +123,14 @@ double = Doubler()
 print(double(21))   # 42 -- calling the OBJECT itself like a function!
 
 """
-This is precisely why in PyTorch you write `output = layer(x)` instead
-of `output = layer.forward(x)` even though you defined `forward`, not
-`__call__`. `nn.Module.__call__` is defined by PyTorch to internally
-invoke your `forward()` (plus some bookkeeping like hooks) -- so
-calling the object directly is the intended, idiomatic usage.
+This is precisely why in PyTorch you write `output = layer(x)` instead of `output = layer.forward(x)` 
+even though you defined `forward`, not `__call__`. `nn.Module.__call__` is defined by PyTorch to internally
+invoke your `forward()` (plus some bookkeeping like hooks), so calling the object directly is the intended,
+idiomatic usage.
 """
+
+
+
 # 5. ARITHMETIC DUNDERS: __add__, __sub__, etc.
 
 class Vector:
@@ -150,7 +148,6 @@ v = Vector(1, 2) + Vector(3, 4)
 print(v)   # Vector(4, 6)   -- `+` triggered __add__ automatically
 
 """
-
 QUICK REFERENCE TABLE
     len(obj)  -> __len__
     obj[i]  -> __getitem__ / __setitem__ / __delitem__
