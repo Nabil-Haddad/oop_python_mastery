@@ -2,9 +2,9 @@
 
 """
 Inheritance (Module 04) models "IS-A" relationships: a Conv2D IS-A Layer.
-Composition models "HAS-A" relationships: a Trainer HAS-A Model,
-HAS-A Optimizer, HAS-A DataLoader. Composition means building a class
-out of OTHER OBJECTS as attributes, rather than inheriting their code.
+Composition models "HAS-A" relationships: a Trainer HAS-A Model, HAS-A Optimizer, HAS-A
+DataLoader. 
+Composition means building a class out of OTHER OBJECTS as attributes, rather than inheriting their code.
 """
 
 # 1. THE PROBLEM: MISUSING INHERITANCE FOR "HAS-A"
@@ -25,11 +25,9 @@ print(bt.predict("x"))  # works, but semantically nonsensical
                         # "a Trainer IS a Model"?? No.
 
 """
-This "works" mechanically, but it's a lie about what a Trainer IS. It
-also drags along everything Model does (and will do in the future)
-whether Trainer wants it or not, and locks you into exactly ONE model
-implementation forever.
-
+This "works" mechanically, but it's a lie about what a Trainer IS.
+It also drags along everything Model does (and will do in the future) whether Trainer wants it
+or not, and locks you into exactly ONE model implementation forever.
 """
 
 
@@ -57,9 +55,8 @@ trainer = GoodTrainer(model=Model(), optimizer=SGD())
 print(trainer.train_step("batch_1"))
 
 """
-Now GoodTrainer can work with ANY object that has a .predict() method
-and ANY object with a .step() method (duck typing, Module 05) --
-swap in a completely different Model or Optimizer subclass tomorrow,
+Now GoodTrainer can work with ANY object that has a .predict() method and ANY object with a 
+.step() method (duck typing, Module 05), swap in a completely different Model or Optimizer subclass tomorrow,
 and Trainer's code doesn't change at all.
 """
 
@@ -67,7 +64,6 @@ and Trainer's code doesn't change at all.
 
 
 """
-
 This is one of the most repeated pieces of OOP wisdom, and for good
 reason. Composition tends to be more FLEXIBLE than inheritance:
 
@@ -119,9 +115,8 @@ print(pipeline.answer("stroke risk factors"))
 """
 This is exactly the shape of a real RAG system:
 swap Retriever for a HybridRetriever (dense+sparse), swap Generator
-for a different LLM wrapper, all WITHOUT touching RAGPipeline itself
--- because RAGPipeline only depends on the SHAPE of the interface
-(.retrieve(), .generate()), not on any specific class.
+for a different LLM wrapper, all WITHOUT touching RAGPipeline itself,  because RAGPipeline only
+depends on the SHAPE of the interface (.retrieve(), .generate()), not on any specific class.
 """
 
 if __name__ == "__main__":
