@@ -2,10 +2,9 @@
 
 
 """
-By now you've written __init__, __repr__, and __eq__ by hand several
-times. For classes that are mostly just "bags of related data" (very
-common for configs, hyperparameters, records), Python's `dataclasses`
-module generates all that boilerplate for you.
+By now you've written __init__, __repr__, and __eq__ by hand several times. 
+For classes that are mostly just "bags of related data" (very common for configs,
+hyperparameters, records), Python's `dataclasses` module generates all that boilerplate for you.
 """
 
 # 1. THE BOILERPLATE PROBLEM
@@ -25,9 +24,9 @@ class ModelConfigManual:
 
 
 """
-Three attributes, and already __init__/__repr__/__eq__ are all
-hand-written and easy to get subtly wrong (typos, forgetting a field
-in __eq__, etc). This is exactly the pattern @dataclass automates.
+Three attributes, and already __init__/__repr__/__eq__ are all hand-written and easy
+to get subtly wrong (typos, forgetting a field in __eq__, etc).
+This is exactly the pattern @dataclass automates.
 """
 
 # 2. @dataclass -- SAME RESULT, NO BOILERPLATE
@@ -48,41 +47,39 @@ print(cfg1)              # ModelConfig(name='resnet', lr=0.01, batch_size=32)
 print(cfg1 == cfg2)      # True -- field-by-field equality, generated for you
 
 """
-@dataclass reads the CLASS-LEVEL TYPE-ANNOTATED variables (name: str,
-lr: float, batch_size: int) and auto-generates __init__, __repr__, and
-__eq__ using exactly those fields, in that order. Note: the type
-annotations (`: str`, `: float`) are NOT enforced at runtime by Python
-itself -- they're documentation/tooling hints (useful for IDEs, mypy,
-etc), not a validation mechanism.
+@dataclass reads the CLASS-LEVEL TYPE-ANNOTATED variables (name: str, lr: float, batch_size: int) 
+and auto-generates __init__, __repr__, and __eq__ using exactly those fields, in that order. 
+Note: the type annotations (`: str`, `: float`) are NOT enforced at runtime by Python itself, 
+they're documentation/tooling hints (useful for IDEs, mypy, etc), not a validation mechanism.
 """
 # 3. DEFAULT VALUES AND MUTABLE DEFAULTS
 
 @dataclass
 class TrainingRun:
     name: str
-    epochs: int = 10                       # simple default -- fine directly
-    tags: list = field(default_factory=list)  # MUTABLE default -- needs field()
+    epochs: int = 10                       # simple default  fine directly
+    tags: list = field(default_factory=list)  # MUTABLE default  needs field()
 
 
 run1 = TrainingRun("exp_a")
 run2 = TrainingRun("exp_b")
 run1.tags.append("baseline")
-print(run1.tags, run2.tags)   # ['baseline'] []  -- correctly independent
+print(run1.tags, run2.tags)   # ['baseline'] []   correctly independent
 
 """
-Recall Module 02's mutable-default trap for plain class attributes.
-`@dataclass` has the SAME underlying danger for `list`/`dict` defaults
--- you CANNOT write `tags: list = []` directly (dataclass will even
-raise an error at class-definition time to stop you). You must use
-`field(default_factory=list)`, which tells dataclass "call list() FRESH
-for every new instance" instead of sharing one list across all of them.
+Recall Module 02's mutable-default trap for plain class attributes. `@dataclass` has the SAME
+underlying danger for `list`/`dict` defaults you CANNOT write `tags: list = []` directly 
+(dataclass will even raise an error at class-definition time to stop you).
+You must use `field(default_factory=list)`, which tells dataclass "call list() FRESH for every new 
+instance" instead of sharing one list across all of them.
 
 """
-# 4. frozen=True -- IMMUTABLE DATACLASSES
+# 4. frozen=True  IMMUTABLE DATACLASSES
+
+
 """
-For values that should never change after creation (a common goal for
-configs, once loaded), `frozen=True` makes the dataclass immutable and
-hashable.
+For values that should never change after creation (a common goal for configs, once loaded),
+`frozen=True` makes the dataclass immutable and hashable.
 """
 
 
@@ -94,7 +91,7 @@ class ImmutableConfig:
 
 icfg = ImmutableConfig(0.01, 42)
 try:
-    icfg.lr = 0.5   # raises -- frozen instances can't be mutated
+    icfg.lr = 0.5   # raises  frozen instances can't be mutated
 except Exception as e:
     print("Blocked mutation:", type(e).__name__, e)
 
@@ -102,19 +99,16 @@ except Exception as e:
 # 5. WHAT'S ACTUALLY HAPPENING: @dataclass IS A CLASS DECORATOR
 
 """
-`@dataclass` is a DECORATOR applied to a class (not just functions,
-decorators work on classes too). Mechanically, `@dataclass` above
-`class ModelConfig:` is EXACTLY equivalent to:
+`@dataclass` is a DECORATOR applied to a class (not just functions, decorators work on classes too). 
+Mechanically, `@dataclass` above `class ModelConfig:` is EXACTLY equivalent to:
 
     class ModelConfig:
         ...
     ModelConfig = dataclass(ModelConfig)
 
-The decorator takes your plain class, INSPECTS its type annotations,
-and returns a MODIFIED version of the class with __init__/__repr__/
-__eq__ injected in. This is the general pattern for any class
-decorator: take a class in, return a class (possibly the same one,
-modified) out.
+The decorator takes your plain class, INSPECTS its type annotations, and returns a MODIFIED version 
+of the class with __init__/__repr__/ __eq__ injected in. This is the general pattern for any class
+decorator: take a class in, return a class (possibly the same one, modified) out.
 
 A tiny custom class decorator, to make the mechanism concrete:
 """
@@ -136,14 +130,13 @@ print(Agent().greet())   # Hello from Agent
 # 6. WHEN TO USE @dataclass vs A REGULAR CLASS
 
 """
-Use @dataclass for: configs, records, simple data containers (DTOs)
-  where the main job is holding a fixed set of typed fields.
+Use @dataclass for: configs, records, simple data containers (DTOs) where the 
+                main job is holding a fixed set of typed fields.
 Use a regular class when: the class has significant BEHAVIOR
-  (methods doing real work), complex validation better expressed
-  through @property setters, or needs custom __init__ logic that
-  goes beyond "just store these fields".
-Nothing stops you from ADDING methods to a @dataclass too, it's
-still a normal class underneath, just with generated boilerplate.
+                (methods doing real work), complex validation better expressed through @property setters, 
+                or needs custom __init__ logic that goes beyond "just store these fields".
+Nothing stops you from ADDING methods to a @dataclass too, it's still a normal class underneath, 
+                just with generated boilerplate.
 """
 
 if __name__ == "__main__":
